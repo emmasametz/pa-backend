@@ -26,7 +26,9 @@ app.post("/feedback", async (req, res) => {
     });
     res.json({ feedback: response.choices[0].message.content });
   } catch (error) {
-    res.status(500).json({ error: "Something went wrong" });
+  console.error("FULL ERROR:", error);
+  res.status(500).json({ error: error.message });
+}
   }
 });
 
