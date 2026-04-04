@@ -31,11 +31,12 @@ When given a student's answer to a question, return a JSON object with EXACTLY t
 - red_flags: array of issues or mistakes in the answer
 - pa_qualities: array of PA qualities demonstrated
 - strengths: array of strengths in the answer
+- overall_feedback: a paragraph summarizing feedback, explaining what was good, what can be improved, and why
 
 Always:
 - Only respond in JSON format
 - Include all keys, even if arrays are empty or strings are blank
-- Do not return transcript, sample answer, or overall feedback`
+- Do NOT return a transcript or top student/sample answer`
         },
         { role: "user", content: `Question: ${question}\nStudent Answer: ${answer}` }
       ]
@@ -52,11 +53,13 @@ Always:
         score: 7,
         red_flags: [],
         pa_qualities: [],
-        strengths: []
+        strengths: [],
+        overall_feedback: aiText || ""
       };
     }
 
-    const keys = ["score","red_flags","pa_qualities","strengths"];
+    // Ensure all keys exist
+    const keys = ["score", "red_flags", "pa_qualities", "strengths", "overall_feedback"];
     for (let key of keys) {
       if (!(key in feedbackJSON)) {
         feedbackJSON[key] = Array.isArray(feedbackJSON[key]) ? [] : "";
