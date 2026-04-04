@@ -16,19 +16,27 @@ app.get("/", (req, res) => {
 
 app.post("/feedback", async (req, res) => {
   const { answer } = req.body;
+
+  if (!answer) {
+    return res.status(400).json({ error: "Answer is required" });
+  }
+
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "You are a PA school interview coach. Give helpful feedback and a strong sample answer." },
+        {
+          role: "system",
+          content: "You are a PA school interview coach. Give helpful feedback and a strong sample answer."
+        },
         { role: "user", content: answer }
       ]
     });
+
     res.json({ feedback: response.choices[0].message.content });
   } catch (error) {
-  console.error("FULL ERROR:", error);
-  res.status(500).json({ error: error.message });
-}
+    console.error("FULL ERROR:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
