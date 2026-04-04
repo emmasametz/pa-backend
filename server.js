@@ -17,28 +17,38 @@ app.get("/", (req, res) => {
 app.post("/feedback", async (req, res) => {
   const { answer } = req.body;
 
-  if (!answer) {
-    return res.status(400).json({ error: "Answer is required" });
-  }
-
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a PA school interview coach. Give helpful feedback and a strong sample answer."
+          content: `
+You are a PA school interview coach. 
+When given a student's answer, return a JSON object with EXACTLY the following keys:
+- score: integer 0-10 evaluating the answer
+- red_flags: array of red flags/issues in the answer
+- pa_qualities: array of PA qualities demonstrated
+- strengths: array of strengths in the answer
+- top_student_response: example of an excellent answer
+- overall_feedback: paragraph explaining feedback
+
+Only respond in JSON format. Do not add any extra text.`
         },
         { role: "user", content: answer }
       ]
     });
 
-    res.json({ feedback: response.choices[0].message.content });
+    // Attempt to parse JSON output
+    const aiText = response.choices[0].message.content;
+    const feedbackJSON = JSON.parse(aiText);
+
+    // Return structured JSON directly
+    res.json(feedbackJSON);
   } catch (error) {
     console.error("FULL ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(process.env.PORT || 3000, () => console.log("Server running"));
